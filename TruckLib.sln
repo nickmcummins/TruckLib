@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.4.33213.308
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11221.17 main
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AAD37CA5-BEE5-4403-A33E-F4E51BE55036}"
 	ProjectSection(SolutionItems) = preProject
@@ -20,6 +20,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TruckLib.Tests", "TruckLib.Tests\TruckLib.Tests.csproj", "{FFB08224-0624-4EFC-B8B8-0A816CAEA056}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "03-RealRoad", "Samples\03-RealRoad\03-RealRoad.csproj", "{BEA35216-1AEA-42A1-B5DE-A6B2F69D1C46}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TruckLib.CLI", "TruckLib.CLI\TruckLib.CLI.csproj", "{CB19819F-462B-4A89-8FDF-7DC28674A708}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +49,10 @@ Global
 		{BEA35216-1AEA-42A1-B5DE-A6B2F69D1C46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BEA35216-1AEA-42A1-B5DE-A6B2F69D1C46}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BEA35216-1AEA-42A1-B5DE-A6B2F69D1C46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB19819F-462B-4A89-8FDF-7DC28674A708}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB19819F-462B-4A89-8FDF-7DC28674A708}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB19819F-462B-4A89-8FDF-7DC28674A708}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB19819F-462B-4A89-8FDF-7DC28674A708}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

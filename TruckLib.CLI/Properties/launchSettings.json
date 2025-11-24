@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TruckLib.CLI": {
+      "commandName": "Project",
+      "commandLineArgs": "\"S:\\SteamLibrary\\steamapps\\common\\American Truck Simulator\\base_map.scs\""
+    }
+  }
+}
