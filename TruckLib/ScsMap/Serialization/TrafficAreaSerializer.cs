@@ -8,7 +8,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     class TrafficAreaSerializer : MapItemSerializer
     {
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var ta = new TrafficArea(false);
             ReadKdopItem(r, ta);

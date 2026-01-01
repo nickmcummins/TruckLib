@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace TruckLib.ScsMap
@@ -10,6 +12,10 @@ namespace TruckLib.ScsMap
     /// </summary>
     public struct EdgeOverride : IBinarySerializable
     {
+        private static readonly IDictionary<string, uint?> PropertyMinVersions = typeof(EdgeOverride)
+            .GetProperties()
+            .ToDictionary(p => p.Name, p => p.GetCustomAttribute<MinSupportedVersionAttribute>()?.MinVersion);
+
         /// <summary>
         /// Unit name of the edge model, as defined in <c>/def/world/road_edge.sii</c>.
         /// </summary>
@@ -18,6 +24,7 @@ namespace TruckLib.ScsMap
         /// <summary>
         /// Look of the edge model.
         /// </summary>
+        [MinSupportedVersion(905)]
         public Token Look { get; set; }
 
         /// <summary>
@@ -59,7 +66,10 @@ namespace TruckLib.ScsMap
             Offset = r.ReadUInt16();
             Length = r.ReadUInt16();
             Edge = r.ReadToken();
-            Look = r.ReadToken();
+            if (version.HasValue && PropertyMinVersions.TryGetValue(nameof(Look), out var minVersion) && minVersion.HasValue && version.Value >= minVersion.Value) 
+            {
+                Look = r.ReadToken();
+            }
         }
 
         /// <inheritdoc/>
@@ -68,7 +78,11 @@ namespace TruckLib.ScsMap
             w.Write(Offset);
             w.Write(Length);
             w.Write(Edge);
-            w.Write(Look);
+
+            if (!string.IsNullOrEmpty(Look.String))
+            {
+                w.Write(Look);
+            }
         }
     }
 }

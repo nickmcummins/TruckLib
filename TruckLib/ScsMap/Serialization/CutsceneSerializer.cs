@@ -7,7 +7,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     class CutsceneSerializer : MapItemSerializer
     {
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var cs = new Cutscene(false);
             ReadKdopItem(r, cs);

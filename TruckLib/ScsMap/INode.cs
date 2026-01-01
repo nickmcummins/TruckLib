@@ -68,18 +68,25 @@ namespace TruckLib.ScsMap
         /// </summary>
         bool IsCurveLocator { get; set; }
 
+        [MinSupportedVersion(905)]
         bool PlayerVehicleTypeChange { get; set; }
 
+        [MinSupportedVersion(905)]
         bool FwdTruck { get; set; }
 
+        [MinSupportedVersion(905)]
         bool FwdBus { get; set; }
 
+        [MinSupportedVersion(905)]
         bool FwdCar { get; set; }
 
+        [MinSupportedVersion(905)]
         bool BwdTruck { get; set; }
 
+        [MinSupportedVersion(905)]
         bool BwdBus { get; set; }
 
+        [MinSupportedVersion(905)]
         bool BwdCar { get; set; }
 
         /// <summary>

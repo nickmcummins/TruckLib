@@ -7,7 +7,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     class HingeSerializer : MapItemSerializer
     {
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var hinge = new Hinge(false);
             ReadKdopItem(r, hinge);

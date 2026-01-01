@@ -7,7 +7,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     class BusStopSerializer : MapItemSerializer
     {
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var bs = new BusStop(false);
 

@@ -10,7 +10,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     internal abstract class MapItemSerializer
     {
-        public abstract MapItem Deserialize(BinaryReader r);
+        public abstract MapItem Deserialize(BinaryReader r, Map map = null);
 
         public abstract void Serialize(BinaryWriter w, MapItem item);
 

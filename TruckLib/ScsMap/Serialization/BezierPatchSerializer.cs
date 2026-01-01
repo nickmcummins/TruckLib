@@ -10,7 +10,7 @@ namespace TruckLib.ScsMap.Serialization
     {
         private const float vegDensityFactor = 10f;
 
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var bp = new BezierPatch(false);
             ReadKdopItem(r, bp);

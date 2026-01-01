@@ -8,7 +8,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     class SoundSerializer : MapItemSerializer
     {
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var sound = new Sound(false);
             ReadKdopItem(r, sound);

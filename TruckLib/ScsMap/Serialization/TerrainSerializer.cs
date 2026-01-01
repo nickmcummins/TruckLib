@@ -13,7 +13,7 @@ namespace TruckLib.ScsMap.Serialization
         private const float terrainSizeFactor = noDetVegFromToFactor;
         private const int distFactor = 10;
 
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var t = new Terrain(false);
             t.Kdop = new KdopItem(false);

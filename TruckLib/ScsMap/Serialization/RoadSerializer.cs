@@ -20,7 +20,7 @@ namespace TruckLib.ScsMap.Serialization
         private const float vegFromToFactor = 10f;
         private const int viewDistFactor = 10;
 
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var road = new Road(false);
 
@@ -203,7 +203,9 @@ namespace TruckLib.ScsMap.Serialization
             rflag1 |= (byte)((road.Resolution == RoadResolution.Superfine).ToByte() << 1);
             rflag1 |= (byte)(road.IgnoreCutPlanes.ToByte() << 2);
             rflag1 |= (byte)(road.Unknown3.ToByte() << 3);
+
             rflag1 |= (byte)(road.CenterBlocked.ToByte() << 4);
+
             rflag1 |= (byte)(road.Right.Models[1].Shift.ToByte() << 5);
             rflag1 |= (byte)(road.Left.Models[1].Shift.ToByte() << 6);
             rflag1 |= (byte)((!road.TerrainShadows).ToByte() << 7);

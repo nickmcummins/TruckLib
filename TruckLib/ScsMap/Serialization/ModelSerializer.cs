@@ -7,7 +7,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     class ModelSerializer : MapItemSerializer
     {
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var model = new Model(false);
             ReadKdopItem(r, model);

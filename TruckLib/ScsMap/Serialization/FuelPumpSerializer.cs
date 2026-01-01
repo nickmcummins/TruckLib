@@ -9,7 +9,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     internal class FuelPumpSerializer : MapItemSerializer
     {
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var pump = new FuelPump(false);
             ReadKdopItem(r, pump);

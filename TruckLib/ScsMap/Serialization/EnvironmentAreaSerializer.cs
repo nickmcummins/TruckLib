@@ -9,7 +9,7 @@ namespace TruckLib.ScsMap.Serialization
     {
         private const float sizeFactor = 2f;
 
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var ea = new EnvironmentArea(false);
             ReadKdopItem(r, ea);

@@ -9,7 +9,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     class TrajectorySerializer : MapItemSerializer
     {
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var trj = new Trajectory(false);
             ReadKdopItem(r, trj);

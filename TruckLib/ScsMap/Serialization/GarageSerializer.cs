@@ -7,7 +7,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     class GarageSerializer : MapItemSerializer
     {
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var garage = new Garage(false);
             ReadKdopItem(r, garage);

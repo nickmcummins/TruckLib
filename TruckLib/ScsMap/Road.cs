@@ -13,7 +13,7 @@ namespace TruckLib.ScsMap
     /// <summary>
     /// A road item.
     /// </summary>
-    public class Road : PolylineItem
+    public class Road : PolylineItem, IVersionedMapItem
     {
         // TODO: Use the KdopItem system.
         // not sure how to implement it while keeping the flexibility
@@ -275,11 +275,14 @@ namespace TruckLib.ScsMap
             set => tmpFlags[16] = value;
         }
 
+        [MinSupportedVersion(905)]
         public bool CenterBlocked
         {
             get => tmpFlags[17];
             set => tmpFlags[17] = value;
         }
+
+        public Map Map { get; init; }
 
         public Road() : base() { }
 

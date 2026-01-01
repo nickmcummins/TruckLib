@@ -7,7 +7,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     class VisibilityAreaSerializer : MapItemSerializer
     {
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var va = new VisibilityArea(false);
             ReadKdopItem(r, va);

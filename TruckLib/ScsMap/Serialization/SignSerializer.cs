@@ -7,7 +7,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     class SignSerializer : MapItemSerializer
     {
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var sign = new Sign(false);
             ReadKdopItem(r, sign);

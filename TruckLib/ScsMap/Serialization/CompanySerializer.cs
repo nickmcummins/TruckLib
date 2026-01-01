@@ -7,7 +7,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     class CompanySerializer : MapItemSerializer
     {
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var company = new Company(false);
 

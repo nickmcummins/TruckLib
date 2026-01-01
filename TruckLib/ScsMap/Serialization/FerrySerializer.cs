@@ -7,7 +7,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     class FerrySerializer : MapItemSerializer
     {
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var ferry = new Ferry(false);
             ReadKdopItem(r, ferry);

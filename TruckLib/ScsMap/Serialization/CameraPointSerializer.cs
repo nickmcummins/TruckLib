@@ -7,7 +7,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     class CameraPointSerializer : MapItemSerializer
     {
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var point = new CameraPoint(false);
             ReadKdopItem(r, point);

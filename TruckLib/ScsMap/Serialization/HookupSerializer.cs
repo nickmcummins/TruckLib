@@ -7,7 +7,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     class HookupSerializer : MapItemSerializer
     {
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var hookup = new Hookup(false);
             ReadKdopItem(r, hookup);

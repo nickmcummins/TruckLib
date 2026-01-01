@@ -7,7 +7,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     class AnimatedModelSerializer : MapItemSerializer
     {
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var am = new AnimatedModel(false);
             ReadKdopItem(r, am);

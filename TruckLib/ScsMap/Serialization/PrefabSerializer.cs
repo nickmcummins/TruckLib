@@ -10,7 +10,7 @@ namespace TruckLib.ScsMap.Serialization
         private const float terrainSizeFactor = 10f;
         private const float vegFromToFactor = 10f;
 
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var pf = new Prefab(false);
             ReadKdopItem(r, pf);

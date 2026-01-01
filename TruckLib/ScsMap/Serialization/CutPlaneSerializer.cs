@@ -8,7 +8,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     class CutPlaneSerializer : MapItemSerializer
     {
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var plane = new CutPlane(false);
             ReadKdopItem(r, plane);

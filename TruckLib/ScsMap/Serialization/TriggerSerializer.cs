@@ -8,7 +8,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     class TriggerSerializer : MapItemSerializer
     {
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var trigger = new Trigger(false);
             ReadKdopItem(r, trigger);

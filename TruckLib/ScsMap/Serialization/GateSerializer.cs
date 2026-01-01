@@ -12,7 +12,7 @@ namespace TruckLib.ScsMap.Serialization
     {
         private const int UnusedActivationPointIndex = -1;
 
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var gate = new Gate(false);
             ReadKdopItem(r, gate);

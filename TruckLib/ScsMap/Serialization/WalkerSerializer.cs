@@ -8,7 +8,7 @@ namespace TruckLib.ScsMap.Serialization
 {
     class WalkerSerializer : MapItemSerializer
     {
-        public override MapItem Deserialize(BinaryReader r)
+        public override MapItem Deserialize(BinaryReader r, Map map = null)
         {
             var walker = new Walker(false);
             ReadKdopItem(r, walker);
