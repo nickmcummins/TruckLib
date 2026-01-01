@@ -1,4 +1,5 @@
-﻿using TruckLib.HashFs;
+﻿using System;
+using TruckLib.HashFs;
 using TruckLib.ScsMap;
 
 namespace TruckLib.CLI
