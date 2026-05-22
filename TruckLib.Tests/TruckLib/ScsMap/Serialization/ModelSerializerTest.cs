@@ -4,21 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TruckLib;
-using TruckLib.HashFs;
 using TruckLib.ScsMap;
 using TruckLib.ScsMap.Serialization;
 
 namespace TruckLib.Tests.TruckLib.ScsMap.Serialization
 {
-    public class ModelSerializerFromHashFsTest
+    public class ModelSerializerTest
     {   
         private readonly Map map;
         private readonly Model model;
 
-        public ModelSerializerFromHashFsTest()
+        public ModelSerializerTest()
         {
-            using var fs = HashFsReader.Open("Data/ModelSerializerTest/modeltest.scs");
-            map = Map.Open("/map/modeltest.mbd", fs);
+            map = Map.Open("Data/ModelSerializerTest/modeltest.mbd");
             model = (Model)map.MapItems.First().Value;
         }
 
@@ -30,14 +28,16 @@ namespace TruckLib.Tests.TruckLib.ScsMap.Serialization
 
         private void TestProperties(Model model)
         {
-            Assert.Equal("ibe_0z001", model.Name);
-            Assert.Equal("shop", model.Variant);
-            Assert.Equal("default", model.Look);
+            Assert.Equal("ar_5e001", model.Name);
+            Assert.Equal("small", model.Variant);
+            Assert.Equal("rusty_white", model.Look);
 
             Assert.False(model.Shadows);
             Assert.True(model.WaterReflection);
             Assert.True(model.Collision);
-            Assert.Equal((Nibble)3, model.ColorVariant);
+
+            Assert.Contains("_part04", model.AdditionalParts);
+            Assert.Contains("_part05", model.AdditionalParts);
 
             Assert.Equal(720, model.ViewDistance);
         }

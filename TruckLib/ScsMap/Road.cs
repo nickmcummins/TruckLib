@@ -13,7 +13,7 @@ namespace TruckLib.ScsMap
     /// <summary>
     /// A road item.
     /// </summary>
-    public class Road : PolylineItem
+    public class Road : PolylineItem, ITerrainRecalculatable
     {
         // TODO: Use the KdopItem system.
         // not sure how to implement it while keeping the flexibility
@@ -357,7 +357,7 @@ namespace TruckLib.ScsMap
             r.Overlay = Overlay;
             r.RandomSeed = RandomSeed;
             r.Resolution = Resolution;
-            r.VegetationSpheres = new List<VegetationSphere>(VegetationSpheres);
+            r.VegetationSpheres = new(VegetationSpheres);
             r.ViewDistance = ViewDistance;
             r.tmpFlags = tmpFlags;
         }
@@ -432,12 +432,14 @@ namespace TruckLib.ScsMap
             RecalculateTerrain();
         }
 
-        private void RecalculateTerrain()
+        internal void RecalculateTerrain()
         {
             if (Left.Terrain.QuadData is not null)
                 Left.Terrain.CalculateQuadGrid(Resolution, Length);
             if (Right.Terrain.QuadData is not null)
                 Right.Terrain.CalculateQuadGrid(Resolution, Length);
         }
+
+        void ITerrainRecalculatable.RecalculateTerrain() => RecalculateTerrain();
     }
 }

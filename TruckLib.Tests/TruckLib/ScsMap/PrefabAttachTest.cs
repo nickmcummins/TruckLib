@@ -18,12 +18,11 @@ namespace TruckLib.Tests.TruckLib.ScsMap
             this.fixture = fixture;
         }
 
-
         [Fact]
         public void AppendRoad()
         {
-            var map = new Map("foo");
-            var prefab = Prefab.Add(map, new Vector3(50, 0, 50), "dlc_blkw_02", fixture.CrossingPpd,
+            var map = new Map();
+            var prefab = Prefab.Add(map, new Vector3(50, 0, 50), "dlc_blkw_02", fixture.BlkwCrossingPpd,
                 Quaternion.CreateFromYawPitchRoll(MathEx.Rad(-90f), 0, 0));
 
             var road = prefab.AppendRoad(1, new Vector3(55, 0, 10), "blkw1");
@@ -42,8 +41,8 @@ namespace TruckLib.Tests.TruckLib.ScsMap
         [Fact]
         public void AppendRoadThrowsIfNodeNotFree()
         {
-            var map = new Map("foo");
-            var prefab = Prefab.Add(map, new Vector3(50, 0, 50), "dlc_blkw_02", fixture.CrossingPpd,
+            var map = new Map();
+            var prefab = Prefab.Add(map, new Vector3(50, 0, 50), "dlc_blkw_02", fixture.BlkwCrossingPpd,
                 Quaternion.CreateFromYawPitchRoll(MathEx.Rad(-90f), 0, 0));
 
             var road = prefab.AppendRoad(1, new Vector3(55, 0, 10), "blkw1");
@@ -54,8 +53,8 @@ namespace TruckLib.Tests.TruckLib.ScsMap
         [Fact]
         public void PrependRoad()
         {
-            var map = new Map("foo");
-            var prefab = Prefab.Add(map, new Vector3(50, 0, 50), "dlc_blkw_02", fixture.CrossingPpd,
+            var map = new Map();
+            var prefab = Prefab.Add(map, new Vector3(50, 0, 50), "dlc_blkw_02", fixture.BlkwCrossingPpd,
                 Quaternion.CreateFromYawPitchRoll(MathEx.Rad(-90f), 0, 0));
 
             var road = prefab.AppendRoad(0, new Vector3(10, 0, 55), "blkw1");
@@ -72,8 +71,8 @@ namespace TruckLib.Tests.TruckLib.ScsMap
         [Fact]
         public void PrependRoadThrowsIfNodeNotFree()
         {
-            var map = new Map("foo");
-            var prefab = Prefab.Add(map, new Vector3(50, 0, 50), "dlc_blkw_02", fixture.CrossingPpd,
+            var map = new Map();
+            var prefab = Prefab.Add(map, new Vector3(50, 0, 50), "dlc_blkw_02", fixture.BlkwCrossingPpd,
                 Quaternion.CreateFromYawPitchRoll(MathEx.Rad(-90f), 0, 0));
 
             var road = prefab.AppendRoad(0, new Vector3(10, 0, 55), "blkw1");
@@ -85,9 +84,9 @@ namespace TruckLib.Tests.TruckLib.ScsMap
         [Fact]
         public void AttachPrefabs()
         {
-            var map = new Map("foo");
-            var prefab1 = Prefab.Add(map, new Vector3(50, 0, 50), "dlc_blkw_02", fixture.CrossingPpd);
-            var prefab2 = Prefab.Add(map, new Vector3(100, 0, 55), "dlc_blkw_02", fixture.CrossingPpd);
+            var map = new Map();
+            var prefab1 = Prefab.Add(map, new Vector3(50, 0, 50), "dlc_blkw_02", fixture.BlkwCrossingPpd);
+            var prefab2 = Prefab.Add(map, new Vector3(100, 0, 55), "dlc_blkw_02", fixture.BlkwCrossingPpd);
 
             prefab1.Attach(3, prefab2, 1);
 
@@ -102,9 +101,9 @@ namespace TruckLib.Tests.TruckLib.ScsMap
         [Fact]
         public void AttachPrefabsP1Origin()
         {
-            var map = new Map("foo");
-            var prefab1 = Prefab.Add(map, new Vector3(50, 0, 50), "dlc_blkw_02", fixture.CrossingPpd);
-            var prefab2 = Prefab.Add(map, new Vector3(48, 0, 89), "dlc_blkw_02", fixture.CrossingPpd);
+            var map = new Map();
+            var prefab1 = Prefab.Add(map, new Vector3(50, 0, 50), "dlc_blkw_02", fixture.BlkwCrossingPpd);
+            var prefab2 = Prefab.Add(map, new Vector3(48, 0, 89), "dlc_blkw_02", fixture.BlkwCrossingPpd);
 
             prefab1.Attach(0, prefab2, 2);
 
@@ -119,9 +118,9 @@ namespace TruckLib.Tests.TruckLib.ScsMap
         [Fact]
         public void AttachPrefabsP2Origin()
         {
-            var map = new Map("foo");
-            var prefab1 = Prefab.Add(map, new Vector3(50, 0, 50), "dlc_blkw_02", fixture.CrossingPpd);
-            var prefab2 = Prefab.Add(map, new Vector3(100, 0, 55), "dlc_blkw_02", fixture.CrossingPpd);
+            var map = new Map();
+            var prefab1 = Prefab.Add(map, new Vector3(50, 0, 50), "dlc_blkw_02", fixture.BlkwCrossingPpd);
+            var prefab2 = Prefab.Add(map, new Vector3(100, 0, 55), "dlc_blkw_02", fixture.BlkwCrossingPpd);
             prefab2.ChangeOrigin(1);
 
             prefab1.Attach(3, prefab2, 0);
@@ -137,9 +136,9 @@ namespace TruckLib.Tests.TruckLib.ScsMap
         [Fact]
         public void AttachThrowsIfNodeOccupied()
         {
-            var map = new Map("foo");
-            var prefab1 = Prefab.Add(map, new Vector3(50, 0, 50), "dlc_blkw_02", fixture.CrossingPpd);
-            var prefab2 = Prefab.Add(map, new Vector3(100, 0, 55), "dlc_blkw_02", fixture.CrossingPpd);
+            var map = new Map();
+            var prefab1 = Prefab.Add(map, new Vector3(50, 0, 50), "dlc_blkw_02", fixture.BlkwCrossingPpd);
+            var prefab2 = Prefab.Add(map, new Vector3(100, 0, 55), "dlc_blkw_02", fixture.BlkwCrossingPpd);
 
             prefab1.AppendRoad(3, new Vector3(69, 0, 69), "bar");
 
@@ -149,13 +148,44 @@ namespace TruckLib.Tests.TruckLib.ScsMap
         [Fact]
         public void AttachThrowsIfBothNodesAreOrigin()
         {
-            var map = new Map("foo");
-            var prefab1 = Prefab.Add(map, new Vector3(50, 0, 50), "dlc_blkw_02", fixture.CrossingPpd);
+            var map = new Map();
+            var prefab1 = Prefab.Add(map, new Vector3(50, 0, 50), "dlc_blkw_02", fixture.BlkwCrossingPpd);
             prefab1.ChangeOrigin(3);
-            var prefab2 = Prefab.Add(map, new Vector3(100, 0, 55), "dlc_blkw_02", fixture.CrossingPpd);
+            var prefab2 = Prefab.Add(map, new Vector3(100, 0, 55), "dlc_blkw_02", fixture.BlkwCrossingPpd);
             prefab2.ChangeOrigin(1);
 
             Assert.Throws<InvalidOperationException>(() => prefab1.Attach(0, prefab2, 0));
+        }
+
+        [Fact]
+        public void AttachRoadToOrigin()
+        {
+            var map = new Map();
+            var crossing = Prefab.Add(map, new Vector3(55, 0, 70), "387",
+                fixture.FrTCrossingPpd, Quaternion.CreateFromYawPitchRoll(-1.5708f, 0, 0));
+            crossing.ChangeOrigin(1);
+
+            var road = crossing.AppendRoad(1, new Vector3(100, 0, 88), "template22");
+            road = road.Append(new Vector3(100, 0, 52)).Append(crossing.Nodes[0].Position);
+            var oldNodeUid = road.ForwardNode.Uid;
+            crossing.Attach(road);
+
+            Assert.Equal(crossing.Nodes[0], road.ForwardNode);
+            Assert.Equal(crossing, road.ForwardNode.ForwardItem);
+            Assert.Equal(road, road.ForwardNode.BackwardItem);
+            Assert.True(road.Node.IsRed);
+            Assert.False(map.Nodes.ContainsKey(oldNodeUid));
+
+            // Ensure length recalculation happened and didn't mess up
+            // the previous length
+            Assert.Equal(32.5727, road.Length, 1e-4);
+            Assert.Equal(39.6189, (road.BackwardItem as Road).Length, 1e-4);
+
+            // Ensure terrain grid recalculation happend
+            Assert.Equal(9, road.Left.Terrain.QuadData.Cols);
+            Assert.Equal(0, road.Left.Terrain.QuadData.Rows);
+            Assert.Equal(9, road.Right.Terrain.QuadData.Cols);
+            Assert.Equal(0, road.Right.Terrain.QuadData.Rows);
         }
     }
 }

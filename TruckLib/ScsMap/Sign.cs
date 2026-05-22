@@ -68,9 +68,14 @@ namespace TruckLib.ScsMap
         public string SignTemplate { get; set; }
 
         /// <summary>
-        /// The attribute overrides used on the sign template.
+        /// The attribute overrides applied to the sign template.
         /// </summary>
-        public List<SignOverride> SignOverrides { get; set; } 
+        public List<SignOverride> SignOverrides { get; set; }
+
+        /// <summary>
+        /// The board overrides applied to the sign template.
+        /// </summary>
+        public List<SignBoardOverride> BoardOverrides { get; set; }
 
         /// <summary>
         /// Gets or sets if the game will rotate this sign to align with the direction of the closest lane
@@ -98,6 +103,15 @@ namespace TruckLib.ScsMap
         {
             get => Kdop.Flags[27];
             set => Kdop.Flags[27] = value;
+        }
+
+        /// <summary>
+        /// Gets or sets if collision is enabled.
+        /// </summary>
+        public bool Collision
+        {
+            get => !Kdop.Flags[30];
+            set => Kdop.Flags[30] = !value;
         }
 
         public Sign() : base() 

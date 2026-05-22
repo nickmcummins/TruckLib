@@ -18,8 +18,6 @@ namespace TruckLib.ScsMap.Serialization
             sign.Look = r.ReadToken();
             sign.Variant = r.ReadToken();
             
-            // sign_boards
-            // used for legacy signs.
             var boardCount = r.ReadByte();
             sign.SignBoards = new Sign.SignBoard[boardCount];
             if (boardCount > 0)
@@ -32,14 +30,15 @@ namespace TruckLib.ScsMap.Serialization
                 }
             }
 
-            // override_template
             sign.SignTemplate = r.ReadPascalString();
-            // if override_template is an empty string,
-            // the file does not contain the sign override array
-            if (sign.SignTemplate == "") return sign;
 
-            // sign_override
-            sign.SignOverrides = ReadObjectList<SignOverride>(r);
+            // If SignTemplate is an empty string,
+            // the file does not contain the sign override array
+            if (sign.SignTemplate != "")
+            {
+                sign.BoardOverrides = ReadObjectList<SignBoardOverride>(r);
+                sign.SignOverrides = ReadObjectList<SignOverride>(r);
+            }
 
             return sign;
         }
@@ -74,9 +73,12 @@ namespace TruckLib.ScsMap.Serialization
             }
 
             w.WritePascalString(sign.SignTemplate);
-            if (sign.SignTemplate == "") return;
 
-            WriteObjectList(w, sign.SignOverrides);
+            if (sign.SignTemplate != "")
+            {
+                WriteObjectList(w, sign.BoardOverrides);
+                WriteObjectList(w, sign.SignOverrides);
+            }
         }
     }
 }

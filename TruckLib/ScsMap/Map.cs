@@ -19,29 +19,6 @@ namespace TruckLib.ScsMap
     /// </summary>
     public class Map : IItemContainer
     {
-        private string name;
-        /// <summary>
-        /// The name of the map, which is used for file and directory names.
-        /// </summary>
-        public string Name
-        {
-            get => name;
-            set
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    throw new ArgumentNullException(nameof(Name),
-                        "The map name must not be null or just whitespace.");
-                }
-                if (value.IndexOfAny(Path.GetInvalidFileNameChars()) != -1)
-                {
-                    throw new ArgumentException("The map name must not contain characters which are " +
-                        "not allowed in filenames", nameof(Name));
-                }
-                name = value;
-            }
-        }
-
         /// <summary>
         /// Metadata of the map's sectors.
         /// </summary>
@@ -114,10 +91,8 @@ namespace TruckLib.ScsMap
         /// <summary>
         /// Creates an empty map.
         /// </summary>
-        /// <param name="name">The name of the map.</param>
-        public Map(string name)
+        public Map()
         {
-            Name = name;
             EditorMapId = Utils.GenerateUuid();
         }
 
@@ -154,30 +129,67 @@ namespace TruckLib.ScsMap
         /// <returns>A Map object.</returns>
         public static Map Open(string path, IFileSystem fs, IList<SectorCoordinate> sectors = null)
         {
+            var map = new Map();
+            map.Read(path, fs, sectors);
+            return map;
+        }
+
+        /// <summary>
+        /// <para>Deserializes a map.</para>
+        /// <para>If the given path points to an .mbd file, metadata is read from it and
+        /// the sectors are loaded from a sibling subdirectory with the same name.</para>
+        /// <para>If the path points to a sector directory, the metadata fields that would
+        /// otherwise have been read from the .mbd file, such as <see cref="NormalScale"/>,
+        /// are left at their default values.
+        /// </para>
+        /// </summary>
+        /// <param name="path">Path to the .mbd file or sector directory of the map.</param>
+        /// <param name="sectors">If set, only the specified sectors will be loaded.</param>
+        public void Read(string path, IList<SectorCoordinate> sectors = null)
+        {
+            Read(path, new DiskFileSystem(), sectors);
+        }
+
+        /// <summary>
+        /// <para>Deserializes a map.</para>
+        /// <para>If the given path points to an .mbd file, metadata is read from it and
+        /// the sectors are loaded from a sibling subdirectory with the same name.</para>
+        /// <para>If the path points to a sector directory, the metadata fields that would
+        /// otherwise have been read from the .mbd file, such as <see cref="NormalScale"/>,
+        /// are left at their default values.
+        /// </para>
+        /// </summary>
+        /// <param name="path">Path to the .mbd file or sector directory of the map.</param>
+        /// <param name="fs">The file system to load the map from. This accepts 
+        /// a <see cref="IHashFsReader">HashFS reader</see>.</param>
+        /// <param name="sectors">If set, only the specified sectors will be loaded.</param>
+        /// <returns>A Map object.</returns>
+        public void Read(string path, IFileSystem fs, IList<SectorCoordinate> sectors = null)
+        {
+            MapItems.Clear();
+            Nodes.Clear();
+
             path = Path.TrimEndingDirectorySeparator(path);
 
             Trace.WriteLine("Loading map " + path);
 
             var loadingFromMbd = fs.FileExists(path);
             var name = Path.GetFileNameWithoutExtension(path);
-            var sectorDirectory = loadingFromMbd 
-                ? $"{fs.GetParent(path)}{fs.DirectorySeparator}{name}" 
+            var sectorDirectory = loadingFromMbd
+                ? $"{fs.GetParent(path)}{fs.DirectorySeparator}{name}"
                 : path;
 
-            var map = new Map(name);
             if (loadingFromMbd)
             {
                 Trace.WriteLine("Parsing .mbd");
-                map.ReadMbd(path, fs);
+                ReadMbd(path, fs);
             }
 
             Trace.WriteLine("Parsing sectors");
-            map.ReadSectors(sectorDirectory, fs, sectors);
+            ReadSectors(sectorDirectory, fs, sectors);
 
             Trace.WriteLine("Updating references");
-            map.UpdateReferences();
-
-            return map;
+            UpdateReferences();
         }
 
         /// <summary>
@@ -494,6 +506,7 @@ namespace TruckLib.ScsMap
             using var r = new BinaryReader(fileStream);
 
             var header = new Header();
+            header.EnforceVersion = Header.EnforceVersionBehavior.AllowLower;
             header.Deserialize(r);
 
             EditorMapId = r.ReadUInt64();
@@ -513,7 +526,8 @@ namespace TruckLib.ScsMap
         /// <param name="sectors">If set, only the given sectors will be loaded.</param>
         private void ReadSectors(string mapDirectory, IFileSystem fs, IList<SectorCoordinate> sectors = null)
         {
-            var baseFiles = fs.GetFiles(mapDirectory).Where(f => Path.GetExtension(f) == ".base");
+            var baseFiles = fs.GetFiles(mapDirectory)
+                .Where(f => Path.GetExtension(f) == ".base");
 
             // create itemless instances for all the sectors first;
             // this is so we have references to the sectors
@@ -531,13 +545,24 @@ namespace TruckLib.ScsMap
             }
 
             // now read in the sectors
+            int i = 0;
             foreach (var (_, sector) in Sectors)
             {
                 Trace.WriteLine($"Reading sector {sector}");
+                OnSectorLoading(sector, i, Sectors.Count);
                 sector.ReadDesc(Path.ChangeExtension(sector.BasePath, Sector.DescExtension), fs);
                 ReadSector(sector.BasePath, fs);
+                i++;
             }
         }
+
+        /// <summary>
+        /// Called before a sector is loaded.
+        /// </summary>
+        /// <param name="sector">The sector which will be loaded.</param>
+        /// <param name="index">The sector's index in the load process.</param>
+        /// <param name="total">The total number of sectors to be loaded.</param>
+        protected virtual void OnSectorLoading(Sector sector, int index, int total) { }
 
         /// <summary>
         /// Reads the sector from disk.
@@ -616,6 +641,12 @@ namespace TruckLib.ScsMap
                 }
                 var serializer = (IDataPayload)MapItemSerializerFactory.Get(item.ItemType);
                 serializer.DeserializeDataPayload(r, item);
+
+                var keep = PostProcessItem(item);
+                if (!keep)
+                {
+                    MapItems.Remove(item.Uid);
+                }
             }
         }
 
@@ -633,6 +664,11 @@ namespace TruckLib.ScsMap
             using var r = new BinaryReader(fileStream);
 
             var header = new Header();
+            // Ignore version mismatch. .snd files in the ETS2/ATS base map
+            // are still on version 903 or 904, but since the Sound item itself
+            // has not changed between 903 and 905, we don't need to throw
+            // an exception over this.
+            header.EnforceVersion = Header.EnforceVersionBehavior.AllowLower;
             header.Deserialize(r);
             ReadItems(r, ItemFile.Snd);
             ReadNodes(r);
@@ -644,7 +680,6 @@ namespace TruckLib.ScsMap
         /// </summary>
         /// <param name="path">The .layer file of the sector.</param>
         /// <param name="fs">The file system to load the file from.</param>
-        /// <exception cref="KeyNotFoundException"></exception>
         private void ReadLayer(string path, IFileSystem fs)
         {
             if (!fs.FileExists(path))
@@ -662,13 +697,12 @@ namespace TruckLib.ScsMap
                 if (uid == EofMarker)
                     break;
 
-                if (!MapItems.TryGetValue(uid, out MapItem item))
-                {
-                    throw new KeyNotFoundException($"{ToString()}.{Sector.LayerExtension} contains " +
-                        $"unknown UID {uid:X} - can't continue.");
-                }
                 var layer = r.ReadByte();
-                item.Layer = layer;
+
+                if (MapItems.TryGetValue(uid, out MapItem item))
+                {
+                    item.Layer = layer;
+                }
             }
         }
 
@@ -694,9 +728,29 @@ namespace TruckLib.ScsMap
                     sign.ItemFile = file;
                 }
 
-                MapItems.Add(item.Uid, item);
+                if (item.HasDataPayload)
+                {
+                    // For items with a .data part,
+                    // PostProcessItem is called in ReadData
+                    MapItems.Add(item.Uid, item);
+                }
+                else
+                {
+                    var keep = PostProcessItem(item);
+                    if (keep)
+                    {
+                        MapItems.Add(item.Uid, item);
+                    }
+                }
             }
         }
+
+        /// <summary>
+        /// Called after all item data has been read in for a map item.
+        /// </summary>
+        /// <param name="item">The item.</param>
+        /// <returns>If true, the item will be kept in memory. If false, it will be discarded.</returns>
+        protected virtual bool PostProcessItem(MapItem item) => true;
 
         /// <summary>
         /// Reads the node section of a .base/.aux/.snd file.
@@ -761,11 +815,12 @@ namespace TruckLib.ScsMap
         /// Saves the map in binary format. If the sector directory does not yet exist, it will be created.
         /// </summary>
         /// <param name="mapDirectory">The path of the directory to save the map into.</param>
+        /// <param name="name">The name of the .mbd file and sector directory (without extension).</param>
         /// <param name="cleanSectorDirectory">If true, existing sector files will be removed 
         /// from the sector directory before saving the map.</param>
-        public void Save(string mapDirectory, bool cleanSectorDirectory = true)
+        public void Save(string mapDirectory, string name, bool cleanSectorDirectory = true)
         {
-            var sectorDirectory = Path.Combine(mapDirectory, Name);
+            var sectorDirectory = Path.Combine(mapDirectory, name);
             Directory.CreateDirectory(sectorDirectory);
 
             if (cleanSectorDirectory)
@@ -801,7 +856,7 @@ namespace TruckLib.ScsMap
                 }
             }
 
-            var mbdPath = Path.Combine(mapDirectory, $"{Name}.mbd");
+            var mbdPath = Path.Combine(mapDirectory, $"{name}.mbd");
             SaveMbd(mbdPath);
         }
 

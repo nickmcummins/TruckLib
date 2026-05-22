@@ -7,7 +7,7 @@ As before, we'll start with an empty map:
 ```cs
 using TruckLib.ScsMap;
 
-var map = new Map("example");
+var map = new Map();
 ```
 
 ## Extracting game assets
@@ -129,7 +129,7 @@ This concludes the second sample. The following code will place the map in the `
 ```cs
 var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 var userMap = Path.Combine(documents, "Euro Truck Simulator 2/mod/user_map/map/");
-map.Save(userMap, true);
+map.Save(userMap, "example", true);
 ```
 
 There should now be an `example.mbd` and an `example` directory in `mod/user_map/map` and 
@@ -144,4 +144,4 @@ Here's our final result:
 
 ## Further reading
 * [Working with prefabs](~/docs/TruckLib.ScsMap/prefabs.md)
-* [Reading HashFS (.scs) archives](~/docs/TruckLib.HashFs/hashfs.md)
+* [Reading HashFS (.scs) archives](~/docs/TruckLib.HashFs/reader.md)

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace TruckLib.ScsMap
 {
     /// <summary>
-    /// A sign override, which overrides attributes of a sign template object.
+    /// Overrides attributes of a sign template object.
     /// </summary>
     public class SignOverride : IBinarySerializable
     {
@@ -18,7 +18,7 @@ namespace TruckLib.ScsMap
         public uint Id { get; set; }
 
         /// <summary>
-        /// The name of the sign area the object is placed on, as defined in the sign's model.
+        /// The name of the sign locator onto which the item's board is placed.
         /// </summary>
         public Token AreaName { get; set; }
 

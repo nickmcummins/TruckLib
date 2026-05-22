@@ -10,17 +10,45 @@ using System.Diagnostics;
 namespace TruckLib.ScsMap
 {
     /// <summary>
-    /// Code for adding a prefab to the map.
+    /// Creates a new prefab item and associated prefab slave items from a prefab descriptor.
     /// </summary>
     internal class PrefabCreator
     {
+        /// <summary>
+        /// The prefab descriptor for which map items are being created.
+        /// </summary>
         private PrefabDescriptor ppd;
+
+        /// <summary>
+        /// The map which the items are being added to.
+        /// </summary>
         private IItemContainer map;
+
+        /// <summary>
+        /// The position of the prefab's 0th node in map space.
+        /// </summary>
         private Vector3 prefabPos;
+
+        /// <summary>
+        /// The rotation of the prefab's 0th node in map space.
+        /// </summary>
         private Quaternion prefabRot;
+
+        /// <summary>
+        /// A rotation applied by the game before the user-defined node rotation is applied. 
+        /// </summary>
         private Quaternion inherentRot;
+
+        /// <summary>
+        /// The prefab item which is being built.
+        /// </summary>
         private Prefab prefab;
-        private List<SpawnPoint> clonedPoints;
+
+        /// <summary>
+        /// Spawn points from the prefab descriptor which have not yet been turned into
+        /// their corresponding map objects.
+        /// </summary>
+        private List<SpawnPoint> pendingPoints;
 
         public Prefab FromPpd(IItemContainer map, Token unitName, PrefabDescriptor ppd,
             Vector3 position, Quaternion rotation)
@@ -29,8 +57,8 @@ namespace TruckLib.ScsMap
             this.ppd = ppd;
             this.prefabPos = position;
 
-            // the game reorients prefab models such that a rotation of 0° means the 0th
-            // control node has a direction of (0, 0, -1). this means that we need to
+            // The game reorients prefab models such that a rotation of 0° means the 0th
+            // control node has a direction of (0, 0, -1). This means that we need to
             // rotate the model in the same way to place nodes at the correct positions
             // and set map node rotations to the correct values.
             this.inherentRot = GetNodeRotation(ppd.Nodes[0].Direction);
@@ -49,59 +77,65 @@ namespace TruckLib.ScsMap
 
         private void CreateSlaveItems()
         {
-            clonedPoints = new List<SpawnPoint>(ppd.SpawnPoints);
+            pendingPoints = new List<SpawnPoint>(ppd.SpawnPoints);
 
-            if (Has(SpawnPointType.CompanyPoint))
+            var has = Enum.GetValues<SpawnPointType>().ToDictionary(k => k, v => false);
+            foreach (var point in pendingPoints)
+            {
+                has[point.Type] = true;
+            }
+
+            if (has[SpawnPointType.CompanyPoint])
             {
                 CreateCompany();
             }
-            if (Has(SpawnPointType.GaragePoint))
+            if (has[SpawnPointType.GaragePoint])
             {
                 CreateGarage();
             }
-            if (Has(SpawnPointType.TruckDealer))
+            if (has[SpawnPointType.TruckDealer])
             {
                 CreateTruckDealer();
             }
 
             //////
 
-            if (Has(SpawnPointType.BusStation))
+            if (has[SpawnPointType.BusStation])
             {
                 CreateSlaveItem<BusStop>(SpawnPointType.BusStation);
             }
-            if (Has(SpawnPointType.GasStation))
+            if (has[SpawnPointType.GasStation])
             {
                 CreateServiceItemsOfType(SpawnPointType.GasStation,
                     ServiceType.GasStation);
             }
-            if (Has(SpawnPointType.Parking))
+            if (has[SpawnPointType.Parking])
             {
                 CreateServiceItemsOfType(SpawnPointType.Parking,
                     ServiceType.Parking);
             }
-            if (Has(SpawnPointType.Recruitment))
+            if (has[SpawnPointType.Recruitment])
             {
                 CreateServiceItemsOfType(SpawnPointType.Recruitment,
                     ServiceType.Recruitment);
             }
-            if (Has(SpawnPointType.ServiceStation))
+            if (has[SpawnPointType.ServiceStation])
             {
                 CreateServiceItemsOfType(SpawnPointType.ServiceStation,
                     ServiceType.ServiceStation);
             }
-            if (Has(SpawnPointType.WeighStation))
+            if (has[SpawnPointType.WeighStation])
             {
                 CreateServiceItemsOfType(SpawnPointType.WeighStation,
                     ServiceType.WeighStation);
             }
-            if (Has(SpawnPointType.WeighStationCat))
+            if (has[SpawnPointType.WeighStationCat])
             {
                 CreateServiceItemsOfType(SpawnPointType.WeighStationCat, 
                     ServiceType.WeighStationCat);
             }
 
-            if (clonedPoints.Count > 0)
+            if (pendingPoints.Count > 0)
             {
                 Trace.WriteLine($"Unhandled spawn points in {prefab.Model.String}");
             }
@@ -114,39 +148,57 @@ namespace TruckLib.ScsMap
         {
             var company = CreateSlaveItem<Company>(SpawnPointType.CompanyPoint);
 
-            for (int i = 0; i < clonedPoints.Count; i++)
+            for (int i = 0; i < pendingPoints.Count; i++)
             {
-                switch (clonedPoints[i].Type)
+                var point = pendingPoints[i];
+
+                if (point.Type is SpawnPointType.UnloadEasy 
+                    or SpawnPointType.UnloadMedium 
+                    or SpawnPointType.UnloadHard
+                    or SpawnPointType.UnloadRigid
+                    or SpawnPointType.Trailer
+                    or SpawnPointType.LongTrailer
+                    or SpawnPointType.Custom)
                 {
-                    case SpawnPointType.UnloadEasy:
-                        i = CreateCompanySpawnPoint(company, i, CompanySpawnPointType.UnloadEasy);
-                        break;
-                    case SpawnPointType.UnloadMedium:
-                        i = CreateCompanySpawnPoint(company, i, CompanySpawnPointType.UnloadMedium);
-                        break;
-                    case SpawnPointType.UnloadHard:
-                        i = CreateCompanySpawnPoint(company, i, CompanySpawnPointType.UnloadHard);
-                        break;
-                    case SpawnPointType.Trailer:
-                        i = CreateCompanySpawnPoint(company, i, CompanySpawnPointType.Trailer);
-                        break;
-                    case SpawnPointType.LongTrailer:
-                        i = CreateCompanySpawnPoint(company, i, CompanySpawnPointType.Trailer);
-                        break;
+                    CreatePoint(company, point);
+                    pendingPoints.RemoveAt(i);
+                    i--;
                 }
             }
 
-            int CreateCompanySpawnPoint(Company company, int i, CompanySpawnPointType type)
+            void CreatePoint(Company company, SpawnPoint point)
             {
-                var node = CreateSpawnPointNode(company, clonedPoints[i]);
-                var spawnPointStruct = new CompanySpawnPoint(node, type);
+                var node = CreateSpawnPointNode(company, point);
+                CompanySpawnPoint spawnPointStruct; 
+                if (point.Type == SpawnPointType.Custom)
+                {
+                    spawnPointStruct = new CompanySpawnPoint(node, point.Flags.Bits);
+                } 
+                else
+                {
+                    var depot = point.Type switch
+                    {
+                        SpawnPointType.Trailer or SpawnPointType.LongTrailer => CompanyDepotType.Load,
+                        _ => CompanyDepotType.Unload,
+                    };
+                    var difficulty = point.Type switch 
+                    { 
+                        SpawnPointType.UnloadEasy => CompanyUnloadDifficulty.Easy,
+                        SpawnPointType.UnloadMedium => CompanyUnloadDifficulty.Medium,
+                        SpawnPointType.UnloadHard => CompanyUnloadDifficulty.Hard,
+                        SpawnPointType.Trailer => CompanyUnloadDifficulty.Easy,
+                        SpawnPointType.LongTrailer => CompanyUnloadDifficulty.Easy,
+                        _ => CompanyUnloadDifficulty.Easy,
+                    };            
+                    spawnPointStruct = new CompanySpawnPoint(node, depot, difficulty);
+                }
                 company.SpawnPoints.Add(spawnPointStruct);
-                clonedPoints.RemoveAt(i);
-                i--;
-                return i;
             }
         }
 
+        /// <summary>
+        /// Creates a Garage item for player garage prefabs.
+        /// </summary>
         private void CreateGarage()
         {
             var garage = CreateSlaveItem<Garage>(SpawnPointType.GaragePoint);
@@ -159,6 +211,9 @@ namespace TruckLib.ScsMap
             CreateSlaveItem<FuelPump>(SpawnPointType.GasStation);
         }
 
+        /// <summary>
+        /// Creates a truck dealer Service item for truck dealer prefabs.
+        /// </summary>
         private void CreateTruckDealer()
         {
             var dealer = CreateSlaveItem<Service>(SpawnPointType.TruckDealer);
@@ -171,12 +226,12 @@ namespace TruckLib.ScsMap
 
         private void CreateServiceItemsOfType(SpawnPointType type, ServiceType serviceType)
         {
-            foreach (var point in clonedPoints.Where(x => x.Type == type))
+            foreach (var point in pendingPoints.Where(x => x.Type == type))
             {
                 var item = CreateSlaveItem<Service>(point);
                 item.ServiceType = serviceType;
             }
-            clonedPoints.RemoveAll(x => x.Type == type);
+            pendingPoints.RemoveAll(x => x.Type == type);
         }
 
         /// <summary>
@@ -187,9 +242,9 @@ namespace TruckLib.ScsMap
         /// <returns></returns>
         private T CreateSlaveItem<T>(SpawnPointType type) where T : PrefabSlaveItem, new()
         {
-            var first = clonedPoints.First(x => x.Type == type);
+            var first = pendingPoints.First(x => x.Type == type);
             var item = CreateSlaveItem<T>(first);
-            clonedPoints.Remove(first);
+            pendingPoints.Remove(first);
             return item;
         }
 
@@ -213,17 +268,17 @@ namespace TruckLib.ScsMap
         /// <summary>
         /// Creates map nodes for all spawn points of the given type.
         /// </summary>
-        /// <param name="item">The company item.</param>
+        /// <param name="item">The slave item.</param>
         /// <param name="spawnPointType">The spawn point type.</param>
-        /// <returns>A list of map nodes.</returns>
+        /// <returns>A list of map nodes representing the spawn points.</returns>
         private List<INode> CreateSpawnPointNodes(PrefabSlaveItem item, SpawnPointType spawnPointType)
         {
-            var selected = clonedPoints.Where(x => x.Type == spawnPointType).ToList();
+            var selected = pendingPoints.Where(x => x.Type == spawnPointType).ToList();
             var list = new List<INode>(selected.Count);
             for (int i = 0; i < selected.Count; i++)
             {
                 list.Add(CreateSpawnPointNode(item, selected[i]));
-                clonedPoints.Remove(selected[i]);
+                pendingPoints.Remove(selected[i]);
             }
             return list;
         }
@@ -238,7 +293,7 @@ namespace TruckLib.ScsMap
         }
 
         /// <summary>
-        /// Converts a point which is relative to the prefab's origin to an absolute map point.
+        /// Converts a point from model space to map space.
         /// </summary>
         /// <param name="ppdPointPos">The ppd point to convert.</param>
         /// <returns>The position of the point in the map.</returns>
@@ -283,16 +338,13 @@ namespace TruckLib.ScsMap
         }
 
         /// <summary>
-        /// Rotates a ppd point around the position of node 0. The returned point is
-        /// still in the coordinate system of the prefab.
+        /// Rotates a ppd point around the position of node 0.
+        /// The returned point is still in model space.
         /// </summary>
         /// <param name="point">The point to rotate.</param>
         /// <param name="rot">The rotation.</param>
         /// <returns>The rotated point.</returns>
         private Vector3 RotatePointAroundNode0(Vector3 point, Quaternion rot) =>
             MathEx.RotatePointAroundPivot(point, ppd.Nodes[0].Position, rot);
-
-        private bool Has(SpawnPointType type) 
-            => clonedPoints.Any(x => x.Type == type);
     }
 }

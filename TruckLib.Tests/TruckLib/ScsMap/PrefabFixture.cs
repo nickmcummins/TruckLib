@@ -9,8 +9,11 @@ namespace TruckLib.Tests.TruckLib.ScsMap
 {
     public class PrefabFixture
     {
-        public PrefabDescriptor CrossingPpd { get; } =
+        public PrefabDescriptor BlkwCrossingPpd { get; } =
             PrefabDescriptor.Open("Data/PrefabTest/blkw_r1_x_r1_narrow_tmpl.ppd");
+
+        public PrefabDescriptor FrTCrossingPpd { get; } =
+            PrefabDescriptor.Open("Data/PrefabTest/fr_r1_x_r1_t_narrow_tmpl.ppd");
 
         public PrefabDescriptor CompanyPpd { get; } =
             PrefabDescriptor.Open("Data/PrefabTest/car_dealer_01_fr.ppd");

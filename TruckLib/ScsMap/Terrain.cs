@@ -12,7 +12,7 @@ namespace TruckLib.ScsMap
     /// <summary>
     /// A standalone terrain item which acts like a terrain-only road.
     /// </summary>
-    public class Terrain : PolylineItem
+    public class Terrain : PolylineItem, ITerrainRecalculatable
     {
         // TODO: Use the KdopItem system.
         // not sure how to implement it while keeping the flexibility
@@ -242,5 +242,7 @@ namespace TruckLib.ScsMap
             if (Right.Terrain.QuadData is not null)
                 Right.Terrain.CalculateQuadGrid(StepSize, Length, AdaptiveTessellation);
         }
+
+        void ITerrainRecalculatable.RecalculateTerrain() => RecalculateTerrain();
     }
 }
